@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <title>Breast Cancer Detection</title>
+    <style>
+        /* Just background and body style */
+        body {
+            margin: 40px;
+            background-color: #808080;
+            background-image: linear-gradient(315deg, #de5499 19%, #a0c5ba 85%);
+        }
+
+        .container {
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .btn-container {
+            background: white;
+            box-shadow: 0 19px 38px rgba(0, 0, 0, 0.30), 0 15px 12px rgba(0, 0, 0, 0.22);
+            border-radius: 5px;
+            padding: 10px;
+        }
+
+        .head {
+            font-weight: bolder;
+        }
+
+        .btn-primary {
+            border-color: "#ff33f" !important;
+            color: #ffffff;
+            text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+            background-color: #de5499 !important;
+            border-color: #de5499 !important;
+            padding: 5px;
+            margin-top: 10px;
+        }
+
+        .form-group {
+            padding: 2px;
+        }
+
+        .file-input-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .file-preview {
+            margin-left: 20px;
+            width: 50px;
+            height: 50px;
+            overflow: hidden;
+        }
+
+        .file-preview img {
+            width: 100%;
+            height: auto;
+        }
+
+        .result {
+            margin-top: 20px;
+        }
+
+        .upload-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+    </style>
+    <!-- Font Awesome -->
+    <script src="https://kit.fontawesome.com/a076d05399.js"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
+        integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"
+        integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg=="
+        crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+        integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+        integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"
+        integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI"
+        crossorigin="anonymous"></script>
+</head>
+
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <h1 class="head">Breast Cancer Detection</h1>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="btn-container">
+                    <!-- Main Input For Receiving Query to our ML -->
+                    <form action="{{ url_for('index') }}" method="post" enctype="multipart/form-data"
+                        class="form-inline">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <img class="image" src="{{ url_for('static', filename='img.jpeg') }}" width="100%"
+                                    height="100%" />
+                            </div>
+                            <div class="col-md-6">
+                                <div class="upload-container">
+                                    <h4>Upload Image</h4>
+                                    <div class="form-group file-input-container">
+                                        <input class="file-input" type="file" name="file" accept=".png, .jpg, .jpeg"
+                                            required onchange="previewImage(event)">
+                                        <div class="file-preview">
+                                            <img id="preview" src="#" alt="Selected Image" style="display: none;">
+                                        </div>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary btn-lg">Predict Cancer</button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                    <br />
+                    <center>
+                        {% if result %}
+                        <div class="result">
+                            <h2 style="background:#de5499">Result: {{ result }}</h2>
+                        </div>
+                        {% endif %}
+                    </center>
+                    <br />
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+<script>
+    function previewImage(event) {
+        var reader = new FileReader();
+        reader.onload = function () {
+            var output = document.getElementById('preview');
+            output.src = reader.result;
+            output.style.display = 'block';
+        };
+        reader.readAsDataURL(event.target.files[0]);
+    }
+</script>
+
+</html>
